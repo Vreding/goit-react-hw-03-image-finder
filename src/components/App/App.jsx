@@ -1,78 +1,95 @@
 import React, { Component } from 'react';
 import Searchbar from 'components/Searchbar/Searchbar';
 import ImageGallery from 'components/ImageGallery/ImageGallery';
-import axios from 'axios';
 import Loader from 'components/Loader/Loader';
+import { getImages } from 'api';
+import { Oval } from 'react-loader-spinner';
 
 class App extends Component {
   state = {
     images: null,
     page: 1,
     searchTerm: '',
-    loadMore: false,
+    showLoadMore: false,
     loading: false,
   };
 
-  handleSubmit = newSearchTerm => {
-    axios
-      .get(
-        `https://pixabay.com/api/?key=35174443-6d9c66fd3ae2eb6a6d3c5c31a&q=${newSearchTerm}&image_type=photo&per_page=12&page=${this.state.page}`
-      )
-      .then(response => {
-        const images = response.data.hits;
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.searchTerm !== this.state.searchTerm ||
+      prevState.page !== this.state.page
+    ) {
+      this.fetchImages();
+    }
+  }
 
-        this.setState({
-          images: images,
-          page: 1,
-          searchTerm: newSearchTerm,
-          loadMore: true,
-          loading: true,
-        });
+  fetchImages = () => {
+    const { page, searchTerm } = this.state;
+
+    this.setState({ loading: true });
+
+    getImages(searchTerm, page)
+      .then(data => {
+        this.setState(prevState => ({
+          images: [...prevState.images, ...data.hits],
+          showLoadMore: page < Math.ceil(data.totalHits / 12),
+        }));
       })
-      .catch(error => {
-        console.error(error);
-      })
+      .catch(error => console.log(error))
       .finally(() => {
-        this.setState({
-          loading: false,
+        this.setState({ loading: false });
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth',
         });
       });
   };
 
-  handlLoadMore = () => {
-    this.setState(
-      prevState => ({ page: prevState.page + 1 }),
-      () => {
-        axios
-          .get(
-            `https://pixabay.com/api/?key=35174443-6d9c66fd3ae2eb6a6d3c5c31a&q=${this.state.searchTerm}&image_type=photo&per_page=12&page=${this.state.page}`
-          )
-          .then(response => {
-            const newImages = response.data.hits;
+  incrementPage() {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
+  }
 
-            this.setState(prevState => ({
-              images: prevState.images.concat(newImages),
-              loading: true,
-            }));
-          })
-          .catch(error => {
-            console.error(error);
-          })
-          .finally(() => {
-            this.setState({
-              loading: false,
-            });
-          });
-      }
-    );
+  onChangeQuery = searchTerm => {
+    this.setState({
+      searchTerm,
+      currentPage: 1,
+      images: [],
+    });
   };
 
   render() {
     return (
       <div>
-        <Searchbar onSubmit={this.handleSubmit} loading={this.state.loading} />
+        <Searchbar onSubmit={this.onChangeQuery} />
         {this.state.images && <ImageGallery images={this.state.images} />}
-        {this.state.loadMore && <Loader handlLoadMore={this.handlLoadMore} />}
+        {this.state.loading && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              paddingTop: '10px',
+              paddingBottom: '10px',
+            }}
+          >
+            <Oval
+              height={80}
+              width={80}
+              color="#4d5ea9"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible="true"
+              ariaLabel="oval-loading"
+              secondaryColor="#4d5ea9"
+              strokeWidth={2}
+              strokeWidthSecondary={2}
+            />
+          </div>
+        )}
+        {this.state.showLoadMore && (
+          <Loader incrementPage={() => this.incrementPage()} />
+        )}
       </div>
     );
   }

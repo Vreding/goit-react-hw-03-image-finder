@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import s from './Searchbar.module.css';
-import { Oval } from 'react-loader-spinner';
 
 export default class Searchbar extends Component {
-  handleSubmit = event => {
+  onChangeQuery = event => {
     event.preventDefault();
     const newSearchTerm = event.target.elements.search.value;
     this.props.onSubmit(newSearchTerm);
@@ -12,7 +11,7 @@ export default class Searchbar extends Component {
   render() {
     return (
       <header className={s.Searchbar}>
-        <form className="form" onSubmit={this.handleSubmit}>
+        <form className="form" onSubmit={this.onChangeQuery}>
           <button type="submit" className="button">
             <span className="button-label">Search</span>
           </button>
@@ -24,18 +23,6 @@ export default class Searchbar extends Component {
             autoFocus
             placeholder="Search images and photos"
             name="search"
-          />
-          <Oval
-            height={80}
-            width={80}
-            color="#4fa94d"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={this.props.loading}
-            ariaLabel="oval-loading"
-            secondaryColor="#4fa94d"
-            strokeWidth={2}
-            strokeWidthSecondary={2}
           />
         </form>
       </header>
