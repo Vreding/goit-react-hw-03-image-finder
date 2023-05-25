@@ -38,10 +38,6 @@ class App extends Component {
       .catch(error => console.log(error))
       .finally(() => {
         this.setState({ loading: false });
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth',
-        });
       });
   };
 
@@ -52,6 +48,10 @@ class App extends Component {
   }
 
   onChangeQuery = searchTerm => {
+    if (searchTerm === this.state.searchTerm) {
+      return;
+    }
+
     this.setState({
       searchTerm,
       currentPage: 1,
