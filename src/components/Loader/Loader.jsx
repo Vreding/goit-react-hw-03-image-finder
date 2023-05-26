@@ -1,13 +1,29 @@
 import React, { Component } from 'react';
-import s from './Loager.module.css';
+import { Oval } from 'react-loader-spinner';
 
 export default class Loader extends Component {
   render() {
     return (
-      <div className={s.ButtonWrapper}>
-        <button className={s.Button} onClick={this.props.incrementPage}>
-          Load More
-        </button>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          paddingTop: '10px',
+          paddingBottom: '10px',
+        }}
+      >
+        <Oval
+          height={80}
+          width={80}
+          color="#4d5ea9"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible="true"
+          ariaLabel="oval-loading"
+          secondaryColor="#4d5ea9"
+          strokeWidth={2}
+          strokeWidthSecondary={2}
+        />
       </div>
     );
   }

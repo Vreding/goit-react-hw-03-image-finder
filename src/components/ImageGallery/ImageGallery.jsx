@@ -12,6 +12,7 @@ class ImageGallery extends Component {
             id={image.id}
             webformatURL={image.webformatURL}
             largeImageURL={image.largeImageURL}
+            onImageClick={this.props.onImageClick}
           />
         ))}
       </ul>

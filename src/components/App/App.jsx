@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
 import Searchbar from 'components/Searchbar/Searchbar';
 import ImageGallery from 'components/ImageGallery/ImageGallery';
-import Loader from 'components/Loader/Loader';
+import Button from 'components/Button/Button';
+import Modal from 'components/Modal/Modal';
 import { getImages } from 'api';
-import { Oval } from 'react-loader-spinner';
+import Loader from 'components/Loader/Loader';
 
 class App extends Component {
   state = {
-    images: null,
+    images: [],
     page: 1,
     searchTerm: '',
     showLoadMore: false,
     loading: false,
+    isModalOpen: false,
+    modalImageURL: '',
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,38 +62,41 @@ class App extends Component {
     });
   };
 
+  onImageClick = modalImageURL => {
+    this.setState({
+      modalImageURL,
+      isModalOpen: true,
+    });
+  };
+
+  toggleModal = () => {
+    this.setState(({ isModalOpen }) => ({
+      isModalOpen: !isModalOpen,
+    }));
+  };
+
   render() {
     return (
-      <div>
+      <>
         <Searchbar onSubmit={this.onChangeQuery} />
-        {this.state.images && <ImageGallery images={this.state.images} />}
-        {this.state.loading && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              paddingTop: '10px',
-              paddingBottom: '10px',
-            }}
-          >
-            <Oval
-              height={80}
-              width={80}
-              color="#4d5ea9"
-              wrapperStyle={{}}
-              wrapperClass=""
-              visible="true"
-              ariaLabel="oval-loading"
-              secondaryColor="#4d5ea9"
-              strokeWidth={2}
-              strokeWidthSecondary={2}
-            />
-          </div>
+        {this.state.images.length && (
+          <ImageGallery
+            images={this.state.images}
+            onImageClick={this.onImageClick}
+          />
         )}
+        {this.state.loading && <Loader />}
         {this.state.showLoadMore && (
-          <Loader incrementPage={() => this.incrementPage()} />
+          <Button incrementPage={() => this.incrementPage()} />
         )}
-      </div>
+        {this.state.isModalOpen && (
+          <Modal
+            imageUrl={this.state.modalImageURL}
+            isModalOpen={this.state.isModalOpen}
+            onClose={this.toggleModal}
+          />
+        )}
+      </>
     );
   }
 }
